@@ -215,7 +215,7 @@ function installQuestions () {
 sudo apt update
 sudo apt full-upgrade
 echo ""
-	echo "What port do you want Stunnel to listen to?"
+	echo "What port do you want Stunnel to listen to? Same as OpenVPN"
 	echo "   1) Default: 1194"
 	echo "   2) Custom"
 	until [[ "$PORT_STUNNEL" =~ ^[1-2]$ ]]; do
@@ -233,7 +233,7 @@ echo ""
 esac
 touch /PORTSTUNNEL.sh
 echo '#!/bin/bash' >> /PORTSTUNNEL.sh
-echo 'PORTSTUNNEL=$SPORTSTUNNEL' >> /PORTSTUNNEL.sh
+echo 'PORTSTUNNEL=$PORTSTUNNEL' >> /PORTSTUNNEL.sh
 echo 'IP=$IP' >> /PORTSTUNNEL.sh
 chmod +x /PORTSTUNNEL.sh
 
@@ -242,17 +242,34 @@ mkdir /VPN
 mkdir /VPN/SSL
 cd /etc/stunnel/
 openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 -sha256 -subj '/CN=127.0.0.1/O=localhost/C=US' -keyout /etc/stunnel/stunnel.pem -out /etc/stunnel/stunnel.pem
+
+
+read -p "Choose a stunnel profil name :" -e -i openvpn profilstunnel
+read -p "Choose a key stunnel.pem name : " -e -i stunnel.pem  stunnelpem
+sudo cp /etc/stunnel/stunnel.pem /VPN/SSL/$stunnelpem
+
 sudo touch stunnel.conf
+################# STUNNEL SERVER CONFIG
 echo "client = no" | sudo tee -a /etc/stunnel/stunnel.conf
-echo "[openvpn]" | sudo tee -a /etc/stunnel/stunnel.conf
+echo "[$profilstunnel]" | sudo tee -a /etc/stunnel/stunnel.conf
 echo "accept = 443" | sudo tee -a /etc/stunnel/stunnel.conf
 echo "connect = 127.0.0.1:$PORTSTUNNEL" | sudo tee -a /etc/stunnel/stunnel.conf
-echo "cert = /etc/stunnel/stunnel.pem" | sudo tee -a /etc/stunnel/stunnel.conf
+echo "cert = /etc/stunnel/$stunnelpem" | sudo tee -a /etc/stunnel/stunnel.conf
+
+################# STUNNEL CLIENT CONFIG
+
+touch /VPN/SSL/stunnel.conf
+echo "[$profilstunnel]" | sudo tee -a /VPN/SSL/stunnel.conf
+echo "client = yes" | sudo tee -a /VPN/SSL/stunnel.conf
+echo "accept = 127.0.0.1:$PORTSTUNNEL" | sudo tee -a /VPN/SSL/stunnel.conf
+echo "connect = $IP:443" | sudo tee -a /VPN/SSL/stunnel.conf
+echo "cert = $stunnelpem" | sudo tee -a /VPN/SSL/stunnel.conf	
+
+########################
 
 sudo sed -i -e 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
 iptables -A INPUT -p tcp --dport 443 -j ACCEPT
 sudo cp /etc/stunnel/stunnel.pem ~
-sudo cp /etc/stunnel/stunnel.pem /VPN/SSL/stunnel.pem
 
 # download stunnel.pem from home directory. It is needed by client.
 sudo service stunnel4 restart
@@ -275,12 +292,8 @@ sudo service stunnel4 restart
 		done
 	fi
 
-touch /VPN/SSL/stunnel.conf
-echo [openRU]
-echo client = yes
-echo accept = 127.0.0.1:$PORTSTUNNEL
-echo connect = $IP:443
-echo cert = stunnel.pem	echo ""
+
+echo ""
 	echo "Checking for IPv6 connectivity..."
 	echo ""
 	# "ping6" and "ping -6" availability varies depending on the distribution
