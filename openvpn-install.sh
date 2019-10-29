@@ -228,6 +228,7 @@ esac
 touch /PORTSTUNNEL.sh
 echo '#!/bin/bash' >> /PORTSTUNNEL.sh
 echo 'PORTSTUNNEL=$SPORTSTUNNEL' >> /PORTSTUNNEL.sh
+echo 'IP=$IP' >> /PORTSTUNNEL.sh
 chmod +x /PORTSTUNNEL.sh
 
 sudo apt install -y stunnel4
@@ -670,11 +671,16 @@ echo smtp_sasl_security_options = noanonymous >> /etc/postfix/main.cf
 echo smtp_tls_CAfile = /etc/postfix/cacert.pem >> /etc/postfix/main.cf
 echo smtp_use_tls = yes >> /etc/postfix/main.cf
 
-echo [smtp.gmail.com]:587    email@gmail.com:password >> /etc/postfix/sasl_passwd
+read -p "Enter email Gmail: "  email
+read -p "Enter email password: "  emailpass
+
+echo [smtp.gmail.com]:587    $email@gmail.com:$emailpass >> /etc/postfix/sasl_passwd
+
 
 sudo chmod 400 /etc/postfix/sasl_passwd
 sudo postmap /etc/postfix/sasl_passwd
 cat /etc/ssl/certs/thawte_Primary_Root_CA.pem | sudo tee -a /etc/postfix/cacert.pem
+
 
 sudo /etc/init.d/postfix reload
 		# We add the OpenVPN repo to get the latest version.
