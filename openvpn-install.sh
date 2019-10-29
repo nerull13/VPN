@@ -241,7 +241,7 @@ sudo sed -i -e 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
 iptables -A INPUT -p tcp --dport 443 -j ACCEPT
 sudo cp /etc/stunnel/stunnel.pem ~
 sudo cp /etc/stunnel/stunnel.pem /VPN/SSL/stunnel.pem
-sudo cp /etc/stunnel/stunnel.conf /VPN/SSL/stunnel.conf
+
 # download stunnel.pem from home directory. It is needed by client.
 sudo service stunnel4 restart
 
@@ -263,7 +263,12 @@ sudo service stunnel4 restart
 		done
 	fi
 
-	echo ""
+touch /VPN/SSL/stunnel.conf
+echo [openRU]
+echo client = yes
+echo accept = 127.0.0.1:$PORTSTUNNEL
+echo connect = $IP:446
+echo cert = stunnel.pem	echo ""
 	echo "Checking for IPv6 connectivity..."
 	echo ""
 	# "ping6" and "ping -6" availability varies depending on the distribution
