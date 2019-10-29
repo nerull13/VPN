@@ -2,44 +2,7 @@
 
 # Secure OpenVPN server installer for Debian, Ubuntu, CentOS, Amazon Linux 2, Fedora and Arch Linux
 # https://github.com/angristan/openvpn-install
-sudo apt update
-sudo apt full-upgrade
-echo ""
-	echo "What port do you want Stunnel to listen to?"
-	echo "   1) Default: 1194"
-	echo "   2) Custom"
-	until [[ "$PORT_STUNNEL" =~ ^[1-2]$ ]]; do
-		read -rp "Port Stunnel [1-2]: " -e -i 2 PORT_STUNNEL
-	done
-	case $PORT_STUNNEL in
-		1)
-			PORT="1194"
-		;;
-		2)
-			until [[ "$PORTSTUNNEL" =~ ^[0-9]+$ ]] && [ "$PORTSTUNNEL" -ge 1 ] && [ "$PORTSTUNNEL" -le 65535 ]; do
-				read -rp "Custom port [1-65535]: " -e -i 1194 PORTSTUNNEL
-			done
-		;;
-esac
-sudo apt install -y stunnel4
-mkdir /VPN
-mkdir /VPN/SSL
-cd /etc/stunnel/
-openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 -sha256 -subj '/CN=127.0.0.1/O=localhost/C=US' -keyout /etc/stunnel/stunnel.pem -out /etc/stunnel/stunnel.pem
-sudo touch stunnel.conf
-echo "client = no" | sudo tee -a /etc/stunnel/stunnel.conf
-echo "[openvpn]" | sudo tee -a /etc/stunnel/stunnel.conf
-echo "accept = 443" | sudo tee -a /etc/stunnel/stunnel.conf
-echo "connect = 127.0.0.1:$PORTSTUNNEL" | sudo tee -a /etc/stunnel/stunnel.conf
-echo "cert = /etc/stunnel/stunnel.pem" | sudo tee -a /etc/stunnel/stunnel.conf
 
-sudo sed -i -e 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
-iptables -A INPUT -p tcp --dport 443 -j ACCEPT
-sudo cp /etc/stunnel/stunnel.pem ~
-sudo cp /etc/stunnel/stunnel.pem /VPN/SSL/stunnel.pem
-sudo cp /etc/stunnel/stunnel.conf /VPN/SSL/stunnel.conf
-# download stunnel.pem from home directory. It is needed by client.
-sudo service stunnel4 restart
 
 ###################
 
@@ -241,6 +204,48 @@ function installQuestions () {
 	echo ""
 	echo "I need to know the IPv4 address of the network interface you want OpenVPN listening to."
 	echo "Unless your server is behind NAT, it should be your public IPv4 address."
+	
+################################### INSTALLATION STUNNEL
+sudo apt update
+sudo apt full-upgrade
+echo ""
+	echo "What port do you want Stunnel to listen to?"
+	echo "   1) Default: 1194"
+	echo "   2) Custom"
+	until [[ "$PORT_STUNNEL" =~ ^[1-2]$ ]]; do
+		read -rp "Port Stunnel [1-2]: " -e -i 2 PORT_STUNNEL
+	done
+	case $PORT_STUNNEL in
+		1)
+			PORT="1194"
+		;;
+		2)
+			until [[ "$PORTSTUNNEL" =~ ^[0-9]+$ ]] && [ "$PORTSTUNNEL" -ge 1 ] && [ "$PORTSTUNNEL" -le 65535 ]; do
+				read -rp "Custom port [1-65535]: " -e -i 1194 PORTSTUNNEL
+			done
+		;;
+esac
+sudo apt install -y stunnel4
+mkdir /VPN
+mkdir /VPN/SSL
+cd /etc/stunnel/
+openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 -sha256 -subj '/CN=127.0.0.1/O=localhost/C=US' -keyout /etc/stunnel/stunnel.pem -out /etc/stunnel/stunnel.pem
+sudo touch stunnel.conf
+echo "client = no" | sudo tee -a /etc/stunnel/stunnel.conf
+echo "[openvpn]" | sudo tee -a /etc/stunnel/stunnel.conf
+echo "accept = 443" | sudo tee -a /etc/stunnel/stunnel.conf
+echo "connect = 127.0.0.1:$PORTSTUNNEL" | sudo tee -a /etc/stunnel/stunnel.conf
+echo "cert = /etc/stunnel/stunnel.pem" | sudo tee -a /etc/stunnel/stunnel.conf
+
+sudo sed -i -e 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+sudo cp /etc/stunnel/stunnel.pem ~
+sudo cp /etc/stunnel/stunnel.pem /VPN/SSL/stunnel.pem
+sudo cp /etc/stunnel/stunnel.conf /VPN/SSL/stunnel.conf
+# download stunnel.pem from home directory. It is needed by client.
+sudo service stunnel4 restart
+
+########################################
 
 	# Detect public IPv4 address and pre-fill for the user
 	IP=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
