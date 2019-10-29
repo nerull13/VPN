@@ -1,8 +1,14 @@
 #!/bin/bash
 
 # Secure OpenVPN server installer for Debian, Ubuntu, CentOS, Amazon Linux 2, Fedora and Arch Linux
-# https://github.com/angristan/openvpn-install
+# FROM https://github.com/angristan/openvpn-install
 
+#############################
+# WITH  :
+# POSTFIX TO SEND CONFIG FILE
+# MUTT
+# RAR
+# STUNNEL
 
 ###################
 
@@ -671,7 +677,7 @@ echo smtp_sasl_security_options = noanonymous >> /etc/postfix/main.cf
 echo smtp_tls_CAfile = /etc/postfix/cacert.pem >> /etc/postfix/main.cf
 echo smtp_use_tls = yes >> /etc/postfix/main.cf
 
-read -p "Enter email Gmail: "  email
+read -p "Enter email Gmail before the @ : "  email
 read -p "Enter email password: "  emailpass
 
 echo [smtp.gmail.com]:587    $email@gmail.com:$emailpass >> /etc/postfix/sasl_passwd
