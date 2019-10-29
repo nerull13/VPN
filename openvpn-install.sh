@@ -214,6 +214,7 @@ function installQuestions () {
 ################################### INSTALLATION STUNNEL
 sudo apt update
 sudo apt full-upgrade
+sudo apt install -y stunnel4
 echo ""
 	echo "What port do you want Stunnel to listen to? Same as OpenVPN"
 	echo "   1) Default: 1194"
@@ -237,7 +238,6 @@ echo 'PORTSTUNNEL=$PORTSTUNNEL' >> /PORTSTUNNEL.sh
 echo 'IP=$IP' >> /PORTSTUNNEL.sh
 chmod +x /PORTSTUNNEL.sh
 
-sudo apt install -y stunnel4
 mkdir /VPN
 mkdir /VPN/SSL
 cd /etc/stunnel/
