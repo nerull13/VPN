@@ -225,6 +225,11 @@ echo ""
 			done
 		;;
 esac
+touch /PORTSTUNNEL.sh
+echo '#!/bin/bash' >> /PORTSTUNNEL.sh
+echo 'PORTSTUNNEL=$SPORTSTUNNEL' >> /PORTSTUNNEL.sh
+chmod +x /PORTSTUNNEL.sh
+
 sudo apt install -y stunnel4
 mkdir /VPN
 mkdir /VPN/SSL
@@ -1127,6 +1132,8 @@ function newClient () {
   mv $homeDir/$CLIENT.ovpn /VPN
         cp /VPN/$CLIENT.ovpn /VPN/SSL
         mv /VPN/SSL/$CLIENT.ovpn /VPN/SSL/$CLIENT-SSL.ovpn
+	bash /PORTSTUNNEL.sh
+	source /PORTSTUNNEL.sh
         sed -i -r 's/.*remote.*/remote 127.0.0.1 $PORTSTUNNEL/g' /VPN/SSL/$CLIENT-SSL.ovpn
         rar a -ep1 /VPN/SSL/$CLIENT-SSL.rar /VPN/SSL/$CLIENT-SSL.ovpn /VPN/SSL/stunnel.pem /VPN/SSL/stunnel.conf
 
