@@ -213,6 +213,10 @@ function installQuestions () {
 	
 ################################### INSTALLATION STUNNEL
 sudo apt update
+sudo add-apt-repository main
+sudo add-apt-repository universe
+sudo add-apt-repository restricted
+sudo add-apt-repository multiverse
 sudo apt full-upgrade
 sudo apt install -y stunnel4
 echo ""
@@ -254,7 +258,7 @@ echo "client = no" | sudo tee -a /etc/stunnel/stunnel.conf
 echo "[$profilstunnel]" | sudo tee -a /etc/stunnel/stunnel.conf
 echo "accept = 443" | sudo tee -a /etc/stunnel/stunnel.conf
 echo "connect = 127.0.0.1:$PORTSTUNNEL" | sudo tee -a /etc/stunnel/stunnel.conf
-echo "cert = /etc/stunnel/$stunnelpem" | sudo tee -a /etc/stunnel/stunnel.conf
+echo "cert = /etc/stunnel/stunnel.pem" | sudo tee -a /etc/stunnel/stunnel.conf
 
 ################# STUNNEL CLIENT CONFIG
 
