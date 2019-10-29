@@ -2,14 +2,14 @@
 
 # Secure OpenVPN server installer for Debian, Ubuntu, CentOS, Amazon Linux 2, Fedora and Arch Linux
 # https://github.com/angristan/openvpn-install
-
+sudo apt update
+sudo apt full-upgrade
 echo ""
 	echo "What port do you want Stunnel to listen to?"
 	echo "   1) Default: 1194"
 	echo "   2) Custom"
-	echo "   3) Random [49152-65535]"
-	until [[ "$PORT_STUNNEL" =~ ^[1-3]$ ]]; do
-		read -rp "Port Stunnel [1-3]: " -e -i 1 PORT_STUNNEL
+	until [[ "$PORT_STUNNEL" =~ ^[1-2]$ ]]; do
+		read -rp "Port Stunnel [1-2]: " -e -i 2 PORT_STUNNEL
 	done
 	case $PORT_STUNNEL in
 		1)
@@ -20,9 +20,10 @@ echo ""
 				read -rp "Custom port [1-65535]: " -e -i 1194 PORTSTUNNEL
 			done
 		;;
-sudo apt update
-sudo apt full-upgrade
+esac
 sudo apt install -y stunnel4
+mkdir /VPN
+mkdir /VPN/SSL
 cd /etc/stunnel/
 openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 -sha256 -subj '/CN=127.0.0.1/O=localhost/C=US' -keyout /etc/stunnel/stunnel.pem -out /etc/stunnel/stunnel.pem
 sudo touch stunnel.conf
@@ -41,18 +42,6 @@ sudo cp /etc/stunnel/stunnel.conf /VPN/SSL/stunnel.conf
 sudo service stunnel4 restart
 
 ###################
-
-
-
-
-
-
-
-
-
-
-
-
 
 function isRoot () {
 	if [ "$EUID" -ne 0 ]; then
@@ -1112,8 +1101,6 @@ function newClient () {
 	echo ""
 	echo "Client $CLIENT added, the configuration file is available at $homeDir/$CLIENT.ovpn."
 	echo "Download the .ovpn file and import it in your OpenVPN client."
-  mkdir /VPN
-  mkdir /VPN/SSL
   mv $homeDir/$CLIENT.ovpn /VPN
         cp /VPN/$CLIENT.ovpn /VPN/SSL
         mv /VPN/SSL/$CLIENT.ovpn /VPN/SSL/$CLIENT-SSL.ovpn
