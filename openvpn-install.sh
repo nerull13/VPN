@@ -1127,7 +1127,7 @@ function newClient () {
   mv $homeDir/$CLIENT.ovpn /VPN
         cp /VPN/$CLIENT.ovpn /VPN/SSL
         mv /VPN/SSL/$CLIENT.ovpn /VPN/SSL/$CLIENT-SSL.ovpn
-        sed -i -r 's/.*remote.*/remote 127.0.0.1 1194/g' /VPN/SSL/$CLIENT-SSL.ovpn
+        sed -i -r 's/.*remote.*/remote 127.0.0.1 $PORTSTUNNEL/g' /VPN/SSL/$CLIENT-SSL.ovpn
         rar a -ep1 /VPN/SSL/$CLIENT-SSL.rar /VPN/SSL/$CLIENT-SSL.ovpn /VPN/SSL/stunnel.pem /VPN/SSL/stunnel.conf
 
 # Demande envoi mail
