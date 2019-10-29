@@ -267,7 +267,7 @@ touch /VPN/SSL/stunnel.conf
 echo [openRU]
 echo client = yes
 echo accept = 127.0.0.1:$PORTSTUNNEL
-echo connect = $IP:446
+echo connect = $IP:443
 echo cert = stunnel.pem	echo ""
 	echo "Checking for IPv6 connectivity..."
 	echo ""
@@ -295,7 +295,7 @@ echo cert = stunnel.pem	echo ""
 	echo "   2) Custom"
 	echo "   3) Random [49152-65535]"
 	until [[ "$PORT_CHOICE" =~ ^[1-3]$ ]]; do
-		read -rp "Port choice [1-3]: " -e -i 1 PORT_CHOICE
+		read -rp "Port choice [1-3]: " -e -i 2 PORT_CHOICE
 	done
 	case $PORT_CHOICE in
 		1)
@@ -303,7 +303,7 @@ echo cert = stunnel.pem	echo ""
 		;;
 		2)
 			until [[ "$PORT" =~ ^[0-9]+$ ]] && [ "$PORT" -ge 1 ] && [ "$PORT" -le 65535 ]; do
-				read -rp "Custom port [1-65535]: " -e -i 1194 PORT
+				read -rp "Custom port [1-65535]: " -e -i $PORTSTUNNEL PORT
 			done
 		;;
 		3)
