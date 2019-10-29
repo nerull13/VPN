@@ -237,9 +237,9 @@ echo ""
 		;;
 esac
 touch /PORTSTUNNEL.sh
-echo '#!/bin/bash' >> /PORTSTUNNEL.sh
-echo 'PORTSTUNNEL=$PORTSTUNNEL' >> /PORTSTUNNEL.sh
-echo 'IP=$IP' >> /PORTSTUNNEL.sh
+echo "#!/bin/bash" >> /PORTSTUNNEL.sh
+echo "PORTSTUNNEL=$PORTSTUNNEL" >> /PORTSTUNNEL.sh
+echo "IP=$IP" >> /PORTSTUNNEL.sh
 chmod +x /PORTSTUNNEL.sh
 
 mkdir /VPN
