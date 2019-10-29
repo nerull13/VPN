@@ -233,12 +233,13 @@ echo ""
 		2)
 			until [[ "$PORTSTUNNEL" =~ ^[0-9]+$ ]] && [ "$PORTSTUNNEL" -ge 1 ] && [ "$PORTSTUNNEL" -le 65535 ]; do
 				read -rp "Custom port [1-65535]: " -e -i 1194 PORTSTUNNEL
+				echo "PORTSTUNNEL=$PORTSTUNNEL" >> /PORTSTUNNEL.sh
 			done
 		;;
 esac
+IP=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
 touch /PORTSTUNNEL.sh
 echo "#!/bin/bash" >> /PORTSTUNNEL.sh
-echo "PORTSTUNNEL=$PORTSTUNNEL" >> /PORTSTUNNEL.sh
 echo "IP=$IP" >> /PORTSTUNNEL.sh
 chmod +x /PORTSTUNNEL.sh
 
