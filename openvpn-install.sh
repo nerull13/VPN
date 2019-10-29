@@ -252,6 +252,7 @@ openssl req -new -newkey rsa:2048 -days 3650 -nodes -x509 -sha256 -subj '/CN=127
 read -p "Choose a stunnel profil name :" -e -i openvpn profilstunnel
 read -p "Choose a key stunnel.pem name : " -e -i stunnel.pem  stunnelpem
 sudo cp /etc/stunnel/stunnel.pem /VPN/SSL/$stunnelpem
+echo "stunnelpem=$stunnelpem" >> /PORTSTUNNEL.sh
 
 sudo touch stunnel.conf
 bash /PORTSTUNNEL.sh
@@ -273,14 +274,12 @@ echo "client = yes" | sudo tee -a /VPN/SSL/stunnel.conf
 echo "accept = 127.0.0.1:$PORTSTUNNEL" | sudo tee -a /VPN/SSL/stunnel.conf
 echo "connect = $IP:443" | sudo tee -a /VPN/SSL/stunnel.conf
 echo "cert = $stunnelpem" | sudo tee -a /VPN/SSL/stunnel.conf	
-
 ########################
 
 sudo sed -i -e 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
 iptables -A INPUT -p tcp --dport 443 -j ACCEPT
 sudo cp /etc/stunnel/stunnel.pem ~
 
-echo 'stunnelpem=$stunnelpem' >> /PORTSTUNNEL.sh
 
 # download stunnel.pem from home directory. It is needed by client.
 sudo service stunnel4 restart
