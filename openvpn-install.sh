@@ -253,11 +253,13 @@ read -p "Choose a key stunnel.pem name : " -e -i stunnel.pem  stunnelpem
 sudo cp /etc/stunnel/stunnel.pem /VPN/SSL/$stunnelpem
 
 sudo touch stunnel.conf
+bash /PORTSTUNNEL.sh
+source /PORTSTUNNEL.sh
 ################# STUNNEL SERVER CONFIG
 echo "client = no" | sudo tee -a /etc/stunnel/stunnel.conf
 echo "[$profilstunnel]" | sudo tee -a /etc/stunnel/stunnel.conf
 echo "accept = 443" | sudo tee -a /etc/stunnel/stunnel.conf
-echo "connect = 127.0.0.1:$" | sudo tee -a /etc/stunnel/stunnel.conf
+echo "connect = 127.0.0.1:$PORTSTUNNEL" | sudo tee -a /etc/stunnel/stunnel.conf
 echo "cert = /etc/stunnel/stunnel.pem" | sudo tee -a /etc/stunnel/stunnel.conf
 
 ################# STUNNEL CLIENT CONFIG
