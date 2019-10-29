@@ -1134,7 +1134,7 @@ function newClient () {
         mv /VPN/SSL/$CLIENT.ovpn /VPN/SSL/$CLIENT-SSL.ovpn
 	bash /PORTSTUNNEL.sh
 	source /PORTSTUNNEL.sh
-        sed -i -r "s/.*remote $IP $PORT.*/remote 127.0.0.1 $PORTSTUNNEL/" /VPN/SSL/$CLIENT-SSL.ovpn
+        sed -i -r "s/.*remote $IP.*/remote 127.0.0.1 $PORTSTUNNEL/" /VPN/SSL/$CLIENT-SSL.ovpn
         rar a -ep1 /VPN/SSL/$CLIENT-SSL.rar /VPN/SSL/$CLIENT-SSL.ovpn /VPN/SSL/stunnel.pem /VPN/SSL/stunnel.conf
 
 # Demande envoi mail
