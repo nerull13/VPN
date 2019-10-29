@@ -263,6 +263,8 @@ echo "cert = /etc/stunnel/stunnel.pem" | sudo tee -a /etc/stunnel/stunnel.conf
 ################# STUNNEL CLIENT CONFIG
 
 touch /VPN/SSL/stunnel.conf
+bash /PORTSTUNNEL.sh
+source /PORTSTUNNEL.sh
 echo "[$profilstunnel]" | sudo tee -a /VPN/SSL/stunnel.conf
 echo "client = yes" | sudo tee -a /VPN/SSL/stunnel.conf
 echo "accept = 127.0.0.1:$PORTSTUNNEL" | sudo tee -a /VPN/SSL/stunnel.conf
