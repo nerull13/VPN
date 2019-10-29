@@ -257,7 +257,7 @@ sudo touch stunnel.conf
 echo "client = no" | sudo tee -a /etc/stunnel/stunnel.conf
 echo "[$profilstunnel]" | sudo tee -a /etc/stunnel/stunnel.conf
 echo "accept = 443" | sudo tee -a /etc/stunnel/stunnel.conf
-echo "connect = 127.0.0.1:$PORTSTUNNEL" | sudo tee -a /etc/stunnel/stunnel.conf
+echo "connect = 127.0.0.1:$" | sudo tee -a /etc/stunnel/stunnel.conf
 echo "cert = /etc/stunnel/stunnel.pem" | sudo tee -a /etc/stunnel/stunnel.conf
 
 ################# STUNNEL CLIENT CONFIG
@@ -274,6 +274,8 @@ echo "cert = $stunnelpem" | sudo tee -a /VPN/SSL/stunnel.conf
 sudo sed -i -e 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
 iptables -A INPUT -p tcp --dport 443 -j ACCEPT
 sudo cp /etc/stunnel/stunnel.pem ~
+
+echo 'stunnelpem=$stunnelpem' >> /PORTSTUNNEL.sh
 
 # download stunnel.pem from home directory. It is needed by client.
 sudo service stunnel4 restart
@@ -1164,7 +1166,7 @@ function newClient () {
 	bash /PORTSTUNNEL.sh
 	source /PORTSTUNNEL.sh
         sed -i -r "s/remote $IP $PORTSTUNNEL/remote 127.0.0.1 $PORTSTUNNEL/" /VPN/SSL/$CLIENT-SSL.ovpn
-        rar a -ep1 /VPN/SSL/$CLIENT-SSL.rar /VPN/SSL/$CLIENT-SSL.ovpn /VPN/SSL/stunnel.pem /VPN/SSL/stunnel.conf
+        rar a -ep1 /VPN/SSL/$CLIENT-SSL.rar /VPN/SSL/$CLIENT-SSL.ovpn /VPN/SSL/$stunnelpem /VPN/SSL/stunnel.conf
 
 # Demande envoi mail
         echo -n -e $JA"Voulez-vous envoyer le fichier $CN.zip par mail ? y/n:" $NE
