@@ -652,6 +652,21 @@ function installOpenVPN () {
 		apt-get update
 		apt-get -y install ca-certificates gnupg
     apt-get -y install postfix mailutils libsasl2-2 ca-certificates libsasl2-modules mutt rar
+sed -i -r 's/.*relayhost =*/relayhost = [smtp.gmail.com]:587/g' /etc/postfix/main.cf
+
+echo smtp_sasl_auth_enable = yes >> /etc/postfix/main.cf
+echo smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd >> /etc/postfix/main.cf
+echo smtp_sasl_security_options = noanonymous >> /etc/postfix/main.cf
+echo smtp_tls_CAfile = /etc/postfix/cacert.pem >> /etc/postfix/main.cf
+echo smtp_use_tls = yes >> /etc/postfix/main.cf
+
+echo [smtp.gmail.com]:587    email@gmail.com:password >> /etc/postfix/sasl_passwd
+
+sudo chmod 400 /etc/postfix/sasl_passwd
+sudo postmap /etc/postfix/sasl_passwd
+cat /etc/ssl/certs/thawte_Primary_Root_CA.pem | sudo tee -a /etc/postfix/cacert.pem
+
+sudo /etc/init.d/postfix reload
 		# We add the OpenVPN repo to get the latest version.
 		if [[ "$VERSION_ID" = "8" ]]; then
 			echo "deb http://build.openvpn.net/debian/openvpn/stable jessie main" > /etc/apt/sources.list.d/openvpn.list
