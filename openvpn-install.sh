@@ -1376,7 +1376,7 @@ NUMBEROFCLIENTS=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep -c "^V")
 CLIENT=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | sed -n "$CLIENTNUMBER"p)
 echo -n -e $JA"Entrez l'adresse mail du destinataire:" $NE
                 read mail
-echo "Configuration d'OpenVPN" | mutt -e "set content_type=text/html"  -s "Configuration du Tunnel/VPN" -a /VPN/$CLIENT.ovpn /VPN/SSL/$CLIENT-SSL.rar -- $mail <  /mail-vpn-ssl.html
+echo "Configuration d'OpenVPN" | mutt -e "set content_type=text/html"  -s "Configuration du Tunnel/VPN" -a /VPN/SSL/$CLIENT-SSL.rar -- $mail <  /mail-vpn-ssl.html
 CR=$?
 if [ "$CR" = 0 ]; then
                         echo -e $VE"Le fichier a bien été envoyé."$NE
