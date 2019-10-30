@@ -218,6 +218,8 @@ wget https://raw.githubusercontent.com/nerull13/VPN/master/mail-vpn.html
 read -p "Pays du VPN : " -e -i FRANCE  paysvpn
 sed -i -r "s/.*RUSSIE*/$paysvpn/g" /mail-vpn.html
 
+read -p "Préfixe profils clients : " -e -i FR-  prefixvpn
+echo "prefixvpn=$prefixvpn" >> /PORTSTUNNEL.sh
 ################################### INSTALLATION STUNNEL
 sudo apt update
 sudo add-apt-repository main
@@ -240,13 +242,12 @@ echo ""
 		2)
 			until [[ "$PORTSTUNNEL" =~ ^[0-9]+$ ]] && [ "$PORTSTUNNEL" -ge 1 ] && [ "$PORTSTUNNEL" -le 65535 ]; do
 				read -rp "Custom port [1-65535]: " -e -i 1194 PORTSTUNNEL
+				echo "#!/bin/bash" >> /PORTSTUNNEL.sh
 				echo "PORTSTUNNEL=$PORTSTUNNEL" >> /PORTSTUNNEL.sh
 			done
 		;;
 esac
 IP=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
-touch /PORTSTUNNEL.sh
-echo "#!/bin/bash" >> /PORTSTUNNEL.sh
 echo "IP=$IP" >> /PORTSTUNNEL.sh
 chmod +x /PORTSTUNNEL.sh
 
@@ -1098,8 +1099,9 @@ function newClient () {
 	echo ""
 	echo "Tell me a name for the client."
 	echo "Use one word only, no special characters."
-
-		read -rp "Client name: " -e -i RU- CLIENT
+                bash /PORTSTUNNEL.sh
+                source /PORTSTUNNEL.sh
+		read -rp "Client name: " -e -i $prefixvpn CLIENT
 	
 	echo ""
 	echo "Do you want to protect the configuration file with a password?"
