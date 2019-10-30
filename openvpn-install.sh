@@ -211,6 +211,13 @@ function installQuestions () {
 	echo "I need to know the IPv4 address of the network interface you want OpenVPN listening to."
 	echo "Unless your server is behind NAT, it should be your public IPv4 address."
 	
+################################### Changement pays email
+cd /
+wget https://raw.githubusercontent.com/nerull13/VPN/master/mail-vpn-ssl.html
+wget https://raw.githubusercontent.com/nerull13/VPN/master/mail-vpn.html
+read -p "Pays du VPN : " -e -i FRANCE  paysvpn
+sed -i -r "s/.*RUSSIE*/$paysvpn/g" /mail-vpn.html
+
 ################################### INSTALLATION STUNNEL
 sudo apt update
 sudo add-apt-repository main
