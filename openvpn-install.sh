@@ -1187,7 +1187,7 @@ function newClient () {
 
                 echo -n -e $JA"Entrez l'adresse mail du destinataire:" $NE
                 read mail
-                echo "Configuration d'OpenVPN" | mutt -e "set content_type=text/html"  -s "Configuration du VPN : RUSSIE " -a /VPN/$CLIENT.ovpn -- $mail <  /mail-vpn.html
+                echo "Configuration d'OpenVPN" | mutt -e "set content_type=text/html"  -s "Configuration de votre VPN " -a /VPN/$CLIENT.ovpn -- $mail <  /mail-vpn.html
                
 	        ######## UNCOMMENT FOR SSL TUNNEL
 		####echo "Configuration d'OpenVPN" | mutt -e "set content_type=text/html"  -s "Configuration du VPN : RUSSIE " -a /VPN/$CLIENT.ovpn /VPN/SSL/$CLIENT-SSL.rar -- $mail <  /best.html
