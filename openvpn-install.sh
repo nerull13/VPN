@@ -693,7 +693,7 @@ function installOpenVPN () {
 		apt-get -y install ca-certificates gnupg
     apt-get -y install postfix mailutils libsasl2-2 ca-certificates libsasl2-modules mutt rar
 sed -i -r 's/.*relayhost =*/relayhost = [smtp.gmail.com]:587/g' /etc/postfix/main.cf
-
+sed -i -r "s/.*inet_protocols = all*/inet_protocols = ipv4/g" /etc/postfix/main.cf
 echo smtp_sasl_auth_enable = yes >> /etc/postfix/main.cf
 echo smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd >> /etc/postfix/main.cf
 echo smtp_sasl_security_options = noanonymous >> /etc/postfix/main.cf
