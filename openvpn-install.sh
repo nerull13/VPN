@@ -1180,7 +1180,7 @@ function newClient () {
 
                 echo -n -e $JA"Entrez l'adresse mail du destinataire:" $NE
                 read mail
-                echo "Configuration d'OpenVPN" | mutt -e "set content_type=text/html"  -s "Configuration du VPN : RUSSIE " -a /VPN/$CLIENT.ovpn -- $mail <  /best.html
+                echo "Configuration d'OpenVPN" | mutt -e "set content_type=text/html"  -s "Configuration du VPN : RUSSIE " -a /VPN/$CLIENT.ovpn -- $mail <  /mail-vpn.html
                
 	        ######## UNCOMMENT FOR SSL TUNNEL
 		####echo "Configuration d'OpenVPN" | mutt -e "set content_type=text/html"  -s "Configuration du VPN : RUSSIE " -a /VPN/$CLIENT.ovpn /VPN/SSL/$CLIENT-SSL.rar -- $mail <  /best.html
@@ -1348,6 +1348,37 @@ function removeOpenVPN () {
 	fi
 }
 
+function sendTunnelFiles () {
+NUMBEROFCLIENTS=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep -c "^V")
+	if [[ "$NUMBEROFCLIENTS" = '0' ]]; then
+		echo ""
+		echo "You have no existing clients!"
+		exit 1
+	fi
+
+	echo ""
+	echo "Select the existing client certificate you want to send Tunnel config files"
+	tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | nl -s ') '
+	if [[ "$NUMBEROFCLIENTS" = '1' ]]; then
+		read -rp "Select one client [1]: " CLIENTNUMBER
+	else
+		read -rp "Select one client [1-$NUMBEROFCLIENTS]: " CLIENTNUMBER
+	fi
+CLIENT=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | sed -n "$CLIENTNUMBER"p)
+echo -n -e $JA"Entrez l'adresse mail du destinataire:" $NE
+                read mail
+echo "Configuration d'OpenVPN" | mutt -e "set content_type=text/html"  -s "Configuration du VPN : RUSSIE " -a /VPN/$CLIENT.ovpn /VPN/SSL/$CLIENT-SSL.rar -- $mail <  /mail-vpn-ssl.html
+CR=$?
+if [ "$CR" = 0 ]; then
+                        echo -e $VE"Le fichier a bien été envoyé."$NE
+                        echo ""
+                        else echo -e $RO"Le fichier n'a pas pu être envoyé."$NE
+                        echo ""
+                fi
+
+
+}
+
 function manageMenu () {
 	clear
 	echo "Welcome to OpenVPN-install!"
@@ -1358,8 +1389,9 @@ function manageMenu () {
 	echo "What do you want to do?"
 	echo "   1) Add a new user"
 	echo "   2) Revoke existing user"
-	echo "   3) Remove OpenVPN"
-	echo "   4) Exit"
+	echo "   3) Send Tunnel config files"
+	echo "   4) Remove OpenVPN"
+	echo "   5) Exit"
 	until [[ "$MENU_OPTION" =~ ^[1-4]$ ]]; do
 		read -rp "Select an option [1-4]: " MENU_OPTION
 	done
@@ -1372,9 +1404,12 @@ function manageMenu () {
 			revokeClient
 		;;
 		3)
-			removeOpenVPN
+			sendTunnelFiles
 		;;
 		4)
+			removeOpenVPN
+		;;
+		5)
 			exit 0
 		;;
 	esac
