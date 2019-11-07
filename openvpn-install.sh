@@ -699,7 +699,7 @@ function installOpenVPN () {
 	if [[ "$OS" =~ (debian|ubuntu) ]]; then
 		apt-get update
 		apt-get -y install ca-certificates gnupg
-    apt-get -y install postfix mailutils libsasl2-2 ca-certificates libsasl2-modules mutt rar
+    apt-get -y install postfix mailutils libsasl2-2 ca-certificates libsasl2-modules mutt rar zip
 sed -i -r 's/.*relayhost =*/relayhost = [smtp.gmail.com]:587/g' /etc/postfix/main.cf
 sed -i -r "s/.*inet_protocols = all*/inet_protocols = ipv4/g" /etc/postfix/main.cf
 echo smtp_sasl_auth_enable = yes >> /etc/postfix/main.cf
@@ -1179,7 +1179,7 @@ function newClient () {
 	bash /PORTSTUNNEL.sh
 	source /PORTSTUNNEL.sh
         sed -i -r "s/remote $IP $PORTSTUNNEL/remote 127.0.0.1 $PORTSTUNNEL/" /VPN/SSL/$CLIENT-SSL.ovpn
-        rar a -ep1 /VPN/SSL/$CLIENT-SSL.rar /VPN/SSL/$CLIENT-SSL.ovpn /VPN/SSL/$stunnelpem /VPN/SSL/stunnel.conf
+        zip -j /VPN/SSL/$CLIENT-SSL.zip /VPN/SSL/$CLIENT-SSL.ovpn /VPN/SSL/$stunnelpem /VPN/SSL/stunnel.conf
 
 # Demande envoi mail
         echo -n -e $JA"Voulez-vous envoyer le fichier $CN.zip par mail ? y/n:" $NE
@@ -1192,7 +1192,7 @@ function newClient () {
                 echo "Configuration d'OpenVPN" | mutt -e "set content_type=text/html"  -s "Configuration de votre VPN " -a /VPN/$CLIENT.ovpn -- $mail <  /mail-vpn.html
                
 	        ######## UNCOMMENT FOR SSL TUNNEL
-		####echo "Configuration d'OpenVPN" | mutt -e "set content_type=text/html"  -s "Configuration du VPN : RUSSIE " -a /VPN/$CLIENT.ovpn /VPN/SSL/$CLIENT-SSL.rar -- $mail <  /best.html
+		####echo "Configuration d'OpenVPN" | mutt -e "set content_type=text/html"  -s "Configuration du VPN : RUSSIE " -a /VPN/$CLIENT.ovpn /VPN/SSL/$CLIENT-SSL.zip -- $mail <  /best.html
 		CR=$?
                 if [ "$CR" = 0 ]; then
                         echo -e $VE"Le fichier a bien été envoyé."$NE
@@ -1242,7 +1242,7 @@ function revokeClient () {
 	echo ""
   rm /VPN/$CLIENT.ovpn
   rm /VPN/SSL/$CLIENT-SSL.ovpn
-  rm /VPN/SSL/$CLIENT-SSL.rar
+  rm /VPN/SSL/$CLIENT-SSL.zip
 	echo "Certificate for client $CLIENT revoked."
 }
 
@@ -1376,7 +1376,7 @@ NUMBEROFCLIENTS=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep -c "^V")
 CLIENT=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | sed -n "$CLIENTNUMBER"p)
 echo -n -e $JA"Entrez l'adresse mail du destinataire:" $NE
                 read mail
-echo "Configuration d'OpenVPN" | mutt -e "set content_type=text/html"  -s "Configuration du Tunnel/VPN" -a /VPN/SSL/$CLIENT-SSL.rar -- $mail <  /mail-vpn-ssl.html
+echo "Configuration d'OpenVPN" | mutt -e "set content_type=text/html"  -s "Configuration du Tunnel/VPN" -a /VPN/SSL/$CLIENT-SSL.zip -- $mail <  /mail-vpn-ssl.html
 CR=$?
 if [ "$CR" = 0 ]; then
                         echo -e $VE"Le fichier a bien été envoyé."$NE
