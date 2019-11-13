@@ -717,13 +717,13 @@ makemap hash /etc/mail/authinfo/smtp-auth < /etc/mail/authinfo/smtp-auth
 
 
 
-echo define(`SMART_HOST',`[smtp.gmail.com]')dnl >> /etc/mail/sendmail.mc
-echo define(`RELAY_MAILER_ARGS', `TCP $h 587')dnl >> /etc/mail/sendmail.mc
-echo define(`ESMTP_MAILER_ARGS', `TCP $h 587')dnl >> /etc/mail/sendmail.mc
-echo define(`confAUTH_OPTIONS', `A p')dnl >> /etc/mail/sendmail.mc
-echo TRUST_AUTH_MECH(`EXTERNAL DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl >> /etc/mail/sendmail.mc
-echo define(`confAUTH_MECHANISMS', `EXTERNAL GSSAPI DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl >> /etc/mail/sendmail.mc
-echo FEATURE(`authinfo',`hash -o /etc/mail/authinfo/smtp-auth.db')dnl >> /etc/mail/sendmail.mc
+echo "define('SMART_HOST','[smtp.gmail.com]')dnl" >> /etc/mail/sendmail.mc
+echo "define('RELAY_MAILER_ARGS', 'TCP $h 587')dnl" >> /etc/mail/sendmail.mc
+echo "define('ESMTP_MAILER_ARGS', 'TCP $h 587')dnl" >> /etc/mail/sendmail.mc
+echo "define('confAUTH_OPTIONS', 'A p')dnl" >> /etc/mail/sendmail.mc
+echo "TRUST_AUTH_MECH('EXTERNAL DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl" >> /etc/mail/sendmail.mc
+echo "define('confAUTH_MECHANISMS', 'EXTERNAL GSSAPI DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl" >> /etc/mail/sendmail.mc
+echo "FEATURE('authinfo','hash -o /etc/mail/authinfo/smtp-auth.db')dnl" >> /etc/mail/sendmail.mc
 
 make -C /etc/mail
 sudo service sendmail reload
