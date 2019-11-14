@@ -1344,6 +1344,22 @@ function removeOpenVPN () {
 		rm -rf /usr/share/doc/openvpn*
 		rm -f /etc/sysctl.d/20-openvpn.conf
 		rm -rf /var/log/openvpn
+		apt-get purge unbound
+		apt-get purge stunnel4
+		rm -rf /etc/stunnel
+		rm -rf /etc/unbound
+		rm -f /PORTSTUNNEL.sh
+		read -rp "Do you really want to remove PostFix? [y/n]: " -e -i n REMOVEPOSTFIX
+	        if [[ "$REMOVEPOSTFIX" = 'y' ]]; then
+		apt-get purge postfix
+		rm -rf /etc/postfix
+		echo ""
+		echo "PostFix Removed!"
+		fi
+		else
+		echo ""
+		echo "Removal aborted!"
+		fi
 
 		# Unbound
 		if [[ -e /etc/unbound/openvpn.conf ]]; then
