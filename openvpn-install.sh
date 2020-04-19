@@ -695,7 +695,22 @@ function installOpenVPN () {
 
 	# Get the "public" interface from the default route
 	NIC=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)
-
+        if [[ -z "$NIC" ]] && [[ "$IPV6_SUPPORT" = 'y' ]]; then
+		NIC=$(ip -6 route show default | sed -ne 's/^default .* dev \([^ ]*\) .*$/\1/p')
+	fi
+	# $NIC can not be empty for script rm-openvpn-rules.sh
+        if [[ -z "$NIC" ]]; then
+                echo
+                echo "Can not detect public interface."
+                echo "This needs for setup MASQUERADE."
+                until [[ $CONTINUE =~ (y|n) ]]; do
+                        read -rp "Continue? [y/n]: " -e CONTINUE
+                done
+                if [[ "$CONTINUE" = "n" ]]; then
+                        exit 1
+                fi
+        fi
+	
 	if [[ "$OS" =~ (debian|ubuntu) ]]; then
 		apt-get update
 		apt-get -y install ca-certificates gnupg
@@ -938,9 +953,12 @@ ncp-ciphers $CIPHER
 tls-server
 tls-version-min 1.2
 tls-cipher $CC_CIPHER
+client-config-dir /etc/openvpn/ccd
 status /var/log/openvpn/status.log
 verb 3" >> /etc/openvpn/server.conf
 
+        # Create client-config-dir dir
+	mkdir -p /etc/openvpn/ccd
 	# Create log dir
 	mkdir -p /var/log/openvpn
 
@@ -1002,7 +1020,7 @@ verb 3" >> /etc/openvpn/server.conf
 	fi
 
 	# Add iptables rules in two scripts
-	mkdir /etc/iptables
+	mkdir -p /etc/iptables
 
 	# Script to add rules
 	echo "#!/bin/sh
@@ -1066,6 +1084,7 @@ WantedBy=multi-user.target" > /etc/systemd/system/iptables-openvpn.service
 	echo "client" > /etc/openvpn/client-template.txt
 	if [[ "$PROTOCOL" = 'udp' ]]; then
 		echo "proto udp" >> /etc/openvpn/client-template.txt
+		echo "explicit-exit-notify" >> /etc/openvpn/client-template.txt
 	elif [[ "$PROTOCOL" = 'tcp' ]]; then
 		echo "proto tcp-client" >> /etc/openvpn/client-template.txt
 	fi
@@ -1245,6 +1264,50 @@ function revokeClient () {
   rm /VPN/SSL/$CLIENT-SSL.zip
 	echo "Certificate for client $CLIENT revoked."
 }
+function suspendClient () {
+	NUMBEROFCLIENTS=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep -c "^V")
+	if [[ "$NUMBEROFCLIENTS" = '0' ]]; then
+		echo ""
+		echo "You have no existing clients!"
+		exit 1
+	fi
+
+	echo ""
+	echo "Select the existing client you want to suspend"
+	tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | nl -s ') '
+	if [[ "$NUMBEROFCLIENTS" = '1' ]]; then
+		read -rp "Select one client [1]: " CLIENTNUMBER
+	else
+		read -rp "Select one client [1-$NUMBEROFCLIENTS]: " CLIENTNUMBER
+	fi
+
+	CLIENT=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | sed -n "$CLIENTNUMBER"p)
+	
+	echo "disable" > /etc/openvpn/ccd/$CLIENT
+	echo "$CLIENT got suspended access"
+}
+function deblokClient () {
+	NUMBEROFCLIENTS=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep -c "^V")
+	if [[ "$NUMBEROFCLIENTS" = '0' ]]; then
+		echo ""
+		echo "You have no existing clients!"
+		exit 1
+	fi
+
+	echo ""
+	echo "Select the existing client you want to suspend"
+	tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | nl -s ') '
+	if [[ "$NUMBEROFCLIENTS" = '1' ]]; then
+		read -rp "Select one client [1]: " CLIENTNUMBER
+	else
+		read -rp "Select one client [1-$NUMBEROFCLIENTS]: " CLIENTNUMBER
+	fi
+
+	CLIENT=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | sed -n "$CLIENTNUMBER"p)
+	
+	rm /etc/openvpn/ccd/$CLIENT
+	echo "$CLIENT got unblocked"
+}
 
 function removeUnbound () {
 	# Remove OpenVPN-related config
@@ -1413,10 +1476,12 @@ function manageMenu () {
 	echo ""
 	echo "What do you want to do?"
 	echo "   1) Add a new user"
-	echo "   2) Revoke existing user"
-	echo "   3) Send Tunnel config files"
-	echo "   4) Remove OpenVPN"
-	echo "   5) Exit"
+	echo "   2) Suspend existing user"
+	echo "   3) Unblock existing user"
+	echo "   4) Revoke existing user"
+	echo "   5) Send Tunnel config files"
+	echo "   6) Remove OpenVPN"
+	echo "   7) Exit"
 	until [[ "$MENU_OPTION" =~ ^[1-5]$ ]]; do
 		read -rp "Select an option [1-5]: " MENU_OPTION
 	done
@@ -1426,15 +1491,21 @@ function manageMenu () {
 			newClient
 		;;
 		2)
-			revokeClient
+			suspendClient
 		;;
 		3)
-			sendTunnelFiles
+			deblokClient
 		;;
 		4)
-			removeOpenVPN
+			revokeClient
 		;;
 		5)
+			sendTunnelFiles
+		;;
+		6)
+			removeOpenVPN
+		;;
+		7)
 			exit 0
 		;;
 	esac
