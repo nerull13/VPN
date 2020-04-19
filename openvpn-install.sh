@@ -1264,51 +1264,7 @@ function revokeClient () {
   rm /VPN/SSL/$CLIENT-SSL.zip
 	echo "Certificate for client $CLIENT revoked."
 }
-function suspendClient () {
-	NUMBEROFCLIENTS=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep -c "^V")
-	if [[ "$NUMBEROFCLIENTS" = '0' ]]; then
-		echo ""
-		echo "You have no existing clients!"
-		exit 1
-	fi
 
-	echo ""
-	echo "Select the existing client you want to suspend"
-	tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | nl -s ') '
-	if [[ "$NUMBEROFCLIENTS" = '1' ]]; then
-		read -rp "Select one client [1]: " CLIENTNUMBER
-	else
-		read -rp "Select one client [1-$NUMBEROFCLIENTS]: " CLIENTNUMBER
-	fi
-
-	CLIENT=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | sed -n "$CLIENTNUMBER"p)
-	
-	echo "disable" > /etc/openvpn/ccd/$CLIENT
-	echo "$CLIENT got suspended access"
-}
-function deblokClient () {
-	NUMBEROFCLIENTS=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep -c "^V")
-	if [[ "$NUMBEROFCLIENTS" = '0' ]]; then
-		echo ""
-		echo "You have no existing clients!"
-		exit 1
-	fi
-
-	echo ""
-	echo "Select the existing client you want to suspend"
-	tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | nl -s ') '
-	if [[ "$NUMBEROFCLIENTS" = '1' ]]; then
-		read -rp "Select one client [1]: " CLIENTNUMBER
-	else
-		read -rp "Select one client [1-$NUMBEROFCLIENTS]: " CLIENTNUMBER
-	fi
-
-	CLIENT=$(tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | sed -n "$CLIENTNUMBER"p)
-	
-	rm /etc/openvpn/ccd/$CLIENT
-	echo "$CLIENT got unblocked"
-	exit 0
-}
 
 function removeUnbound () {
 	# Remove OpenVPN-related config
