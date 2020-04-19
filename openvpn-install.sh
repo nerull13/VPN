@@ -1307,6 +1307,7 @@ function deblokClient () {
 	
 	rm /etc/openvpn/ccd/$CLIENT
 	echo "$CLIENT got unblocked"
+	exit 0
 }
 
 function removeUnbound () {
@@ -1343,6 +1344,7 @@ function removeUnbound () {
 		echo ""
 		echo "Unbound wasn't removed."
 	fi
+	exit 0
 }
 
 function removeOpenVPN () {
@@ -1434,6 +1436,7 @@ function removeOpenVPN () {
 		echo ""
 		echo "Removal aborted!"
 	fi
+	exit 0
 }
 
 function sendTunnelFiles () {
@@ -1463,6 +1466,7 @@ if [ "$CR" = 0 ]; then
                         else echo -e $RO"Le fichier n'a pas pu être envoyé."$NE
                         echo ""
                 fi
+		exit 0
 
 
 }
