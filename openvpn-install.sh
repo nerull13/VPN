@@ -1354,7 +1354,7 @@ function deblokClient () {
 	fi
 
 	echo ""
-	echo "Select the existing client you want to SUSPEND"
+	echo "Select the existing client you want to DEBLOCK"
 	tail -n +2 /etc/openvpn/easy-rsa/pki/index.txt | grep "^V" | cut -d '=' -f 2 | nl -s ') '
 	if [[ "$NUMBEROFCLIENTS" == '1' ]]; then
 		read -rp "Select one client [1]: " CLIENTNUMBER
